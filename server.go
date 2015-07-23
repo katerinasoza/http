@@ -17,11 +17,6 @@ func timegetter(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Here's your time:\n", time.Now().UTC())
 }
 
-/*func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-    t, _ := template.ParseFiles(tmpl + ".html")
-    t.Execute(w, p)
-}*/
-
 func poster (w http.ResponseWriter, r *http.Request) {
 	var p Page
 	t, _ := template.ParseFiles("post.html")
