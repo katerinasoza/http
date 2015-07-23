@@ -2,20 +2,32 @@ package main
 
 import (
 	"net/http"
+	"html/template"
 	"fmt"
 	"time"
 )	
 
-var msgs = make([]string, 10)
+var msgs []string
 
-func timegetter(w http.ResponseWriter, r *http.Request) {
-	t := time.Now()
-	t = t.UTC()
-	fmt.Fprintln(w, "Here's your time:\n", t)
+type Page struct { 
+    Body  string
 }
 
+func timegetter(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Here's your time:\n", time.Now().UTC())
+}
+
+/*func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
+    t, _ := template.ParseFiles(tmpl + ".html")
+    t.Execute(w, p)
+}*/
+
 func poster (w http.ResponseWriter, r *http.Request) {
-	msgs = append(msgs, r.URL.Path[6:])
+	var p Page
+	t, _ := template.ParseFiles("post.html")
+	t.Execute(w, p)
+	msgs = append(msgs, p.Body)
+	fmt.Fprintln(w, msgs)
 }
 
 func allmessages (w http.ResponseWriter, r *http.Request) {
@@ -26,7 +38,7 @@ func allmessages (w http.ResponseWriter, r *http.Request) {
 
 func main(){
 	http.HandleFunc("/time", timegetter)
-	http.HandleFunc("/post/", poster)
+	http.HandleFunc("/message", poster)
 	http.HandleFunc("/get", allmessages)
 	http.ListenAndServe(":8080", nil)
 }
