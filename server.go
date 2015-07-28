@@ -5,9 +5,11 @@ import (
 	"html/template"
 	"fmt"
 	"time"
+	"sync"
 )	
 
-var msgs []string
+var  (msgs []string
+	 rw *sync.RWMutex)
 
 func timegetter(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Here's your time:\n", time.Now().UTC())
@@ -19,15 +21,14 @@ func poster (w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err1.Error(), http.StatusInternalServerError)
 		return
 	}
-		for _ , msg := range msgs {
-			fmt.Fprintf(w, "<ul>"+"<li>%s</li>"+"</ul>", msg)
-		}
+	if r.FormValue("body") != ""{
+		rw.Lock()
+		msgs = append(msgs, r.FormValue("body"))
+		rw.Unlock()
+	}
 	err := t.Execute(w, msgs)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	if r.FormValue("body") != "" {
-		msgs = append(msgs, r.FormValue("body"))
 	}
 }
 
