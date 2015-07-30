@@ -15,10 +15,9 @@ type Message struct{
 	tmpl *template.Template
 }  
 
-func (m *Message) NewMessage (name string) *Message{ //инициализатор
-	m.msgs = make([]string, 0, 100)
-	var err error
-	if m.tmpl, err = template.ParseFiles(name); err != nil {
+func NewMessage (name string) *Message{
+	msgs := make([]string, 0, 100)
+	if tmpl, err := template.ParseFiles(name); err != nil {
 		log.Fatal(err.Error())
 	}
 	return m
@@ -44,15 +43,13 @@ func (m *Message) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if r.FormValue("name") != "" {
 		m.Clear()
 		}
-		msg := r.FormValue("body")
-		if msg != "" {
+		if msg := r.FormValue("body"); msg != "" {
 			m.Add(msg)
 		}
 }}
 
-func main(){
-	var m *Message 
-	m.NewMessage("post.html") 
+func main(){ 
+	m := NewMessage("post.html") 
 	log.Println(m)
 	http.HandleFunc("/time", func (w http.ResponseWriter, r *http.Request) {fmt.Fprintln(w, time.Now().UTC() .Format("2006-01-02T15:04:05Z07:00"))})
 	http.HandleFunc("/message", m.ServeHTTP)
