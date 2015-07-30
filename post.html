@@ -1,9 +1,11 @@
 <h1>Messages</h1>
 
-<div>{{if "galka".Check}} {{range $i, $msg := .}} {{$msg}} <br> {{end}} {{end}} </div>
+<ol> {{range $msg := .}} 
+<li>{{ . }}</li>{{end}} 
+</ol>
 
-<form action="/message" method="POST">
+<form method="POST">
 <div><textarea name="body" rows="20" cols="80"></textarea></div>
-<div><input type="submit" formaction="/message" value="Send"></div>
+<div><input type="submit" value="Send"></div>
+<label><input type="checkbox" name="galka">Show previous messages</label>
 </form>
-<label><input type="checkbox" id="galka">Show previous messages</label>
