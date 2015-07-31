@@ -15,12 +15,14 @@ type Message struct{
 	tmpl *template.Template
 }  
 
-func NewMessage (name string) *Message{
-	msgs := make([]string, 0, 100)
-	if tmpl, err := template.ParseFiles(name); err != nil {
-		log.Fatal(err.Error())
-	}
-	return m
+func NewMessage (name string) (*Message){
+		msgs := make([]string, 0, 100)
+		var mu sync.Mutex
+		tmpl, err := template.ParseFiles(name)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	return &Message{msgs, mu, tmpl}
 }
 
 func (m *Message) Add (msg string){
@@ -38,21 +40,20 @@ func (m *Message) Clear () {
 func (m *Message) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := m.tmpl.Execute(w, m.msgs); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+		}
 	if r.Method == "POST" {
-		if r.FormValue("name") != "" {
+		if r.FormValue("check") != "" {
 		m.Clear()
-		}
-		if msg := r.FormValue("body"); msg != "" {
+		return
+		} else if msg := r.FormValue("body"); msg != "" {
 			m.Add(msg)
-		}
+	}
 }}
 
 func main(){ 
 	m := NewMessage("post.html") 
-	log.Println(m)
 	http.HandleFunc("/time", func (w http.ResponseWriter, r *http.Request) {fmt.Fprintln(w, time.Now().UTC() .Format("2006-01-02T15:04:05Z07:00"))})
-	http.HandleFunc("/message", m.ServeHTTP)
+	http.Handle("/message", m)
 	if err :=  http.ListenAndServe(":8080", nil); err != nil{
 		log.Fatal(err.Error())
 	}
