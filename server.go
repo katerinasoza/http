@@ -57,7 +57,8 @@ func main() {
 		fmt.Fprintln(w, time.Now().UTC().Format("2006-01-02T15:04:05Z07:00"))
 	})
 	http.Handle("/message", m)
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	log.Printf("Go to https://127.0.0.1:8080/")
+	if err := http.ListenAndServeTLS(":8080", "server.pfx", "key.txt", nil); err != nil {
 		log.Fatal(err.Error())
 	}
 }
